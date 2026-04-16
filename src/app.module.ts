@@ -1,52 +1,30 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import { User } from './auth/user.entity'; // We will create this next
+import { User } from './auth/user.entity';
+import { PasswordResetToken } from './auth/password-reset.entity'; // ✅ Added
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres', // default username
-      password: 'your_password', 
-      database: 'aegis_db',
-      entities: [User],
-      synchronize: true, // This automatically creates the table in pgAdmin
+    ConfigModule.forRoot({ isGlobal: true }), // ✅ Loads .env globally
+
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get<string>('DB_HOST', 'localhost'),
+        port: config.get<number>('DB_PORT', 5432),
+        username: config.get<string>('DB_USERNAME', 'postgres'),
+        password: config.get<string>('DB_PASSWORD', 'BubsProject2026'), // ✅ From .env
+        database: config.get<string>('DB_DATABASE', 'aegis_db'),
+        entities: [User, PasswordResetToken], // ✅ Added PasswordResetToken
+        synchronize: true,
+      }),
     }),
+
     AuthModule,
   ],
 })
 export class AppModule {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { Module } from '@nestjs/common';
-// import { AppController } from './app.controller';
-// import { AppService } from './app.service';
-// import { AuthModule } from './auth/auth.module';
-// import { PrismaService } from './prisma/prisma.service';
-// import { AuthModule } from './auth/auth.module';
-
-// @Module({
-//   imports: [AuthModule],
-//   controllers: [AppController],
-//   providers: [AppService, PrismaService],
-// })
-// export class AppModule {}
