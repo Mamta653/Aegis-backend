@@ -11,7 +11,6 @@ import { PasswordResetToken } from './password-reset.entity';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { JwtService } from '@nestjs/jwt';
-import * as nodemailer from 'nodemailer';
 
 interface SignUpData {
   email: string;
@@ -62,7 +61,6 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    // ✅ Added null check for password
     if (!user.password) throw new UnauthorizedException('Invalid credentials');
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -117,20 +115,13 @@ export class AuthService {
     userName: string,
     resetLink: string,
   ): Promise<void> {
-    const transporter = nodemailer.createTransport({
-      host: process.env.MAIL_HOST,
-      port: Number(process.env.MAIL_PORT),
-      secure: true,
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASS,
-      },
-    });
-    await transporter.sendMail({
-      from: `"Your App" <${process.env.MAIL_USER ?? ''}>`,
+    const { Resend } = await import('resend');
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    await resend.emails.send({
+      from: 'onboarding@resend.dev',
       to: toEmail,
       subject: 'Reset Your Password',
-      text: `Hi ${userName},\n\nReset your password:\n${resetLink}\n\nExpires in 30 minutes.`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;">
           <h2 style="color:#111;">Reset Your Password</h2>
@@ -144,9 +135,6 @@ export class AuthService {
           <p style="color:#888;font-size:13px;">
             Expires in <strong>30 minutes</strong>.
             Ignore this if you did not request a reset.
-          </p>
-          <p style="color:#bbb;font-size:11px;">
-            Can't click? Copy: <a href="${resetLink}">${resetLink}</a>
           </p>
         </div>
       `,
