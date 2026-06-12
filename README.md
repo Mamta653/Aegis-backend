@@ -2,7 +2,7 @@
 
 > **Production REST API** · NestJS · PostgreSQL · JWT Auth · Email · Video Calls
 
-[![Live API](https://img.shields.io/badge/Live%20API-aegis--backend--7kf1.onrender.com-black?style=for-the-badge)](https://aegis-backend-7kf1.onrender.com)
+
 [![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?style=for-the-badge&logo=nestjs)](https://nestjs.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-4169E1?style=for-the-badge&logo=postgresql)](https://supabase.com)
